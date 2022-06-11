@@ -1,15 +1,23 @@
-
+import json
 import sys
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, abort
 from flask_cors import CORS
-from flask_restful import abort
 from model import set_up, Book
 
-BOOK_PER_SHELF = 8
-def pagination(request, selection):
-    page = request.args.get(page, 1, type = int)
-    start = (page - 1) * BOOK_PER_SHELF
-    end = start + BOOK_PER_SHELF
+BOOKS_PER_SHELF = 8
+# def paginate_books(request, selection):
+#     page = request.args.get('page', 1, type = int)
+#     start = (page - 1) * BOOK_PER_SHELF
+#     end = start + BOOK_PER_SHELF
+
+#     books = [book.format() for book in selection]
+#     current_book = books[start:end]
+
+#     return current_book
+def paginate_books(request, selection):
+    page = request.args.get("page", 1, type=int)
+    start = (page - 1) * BOOKS_PER_SHELF
+    end = start + BOOKS_PER_SHELF
 
     books = [book.format() for book in selection]
     current_book = books[start:end]
@@ -36,14 +44,33 @@ def create_app():
     # TODO: Define an app route to retrieve all books
 
     @app.route('/books')
+    # def retrieve_books():
+    #     selection = Book.query.order_by(Book.id).all()
+    #     print([select.format() for select in selection])
+    #     # return 'result'
+    #     current_books  = pagination(request, selection)
+    #     return ('result')
+
+    #     # if len(current_books) == 0:
+    #     #     abort(404)
+    #     # return jsonify({
+    #     #     'success': True,
+    #     #     'books': current_books,
+    #     #     'total_books': len(Book.query.all())
+    #     # })
     def retrieve_books():
         selection = Book.query.order_by(Book.id).all()
-        current_books  = pagination(request, selection)
+        current_books = paginate_books(request, selection)
 
         if len(current_books) == 0:
             abort(404)
-        return jsonify({
-            'success': True,
-            'books': current_books,
-            'total books': len(Book.query.all())
-        })
+
+        return jsonify(
+            {
+                "success": True,
+                "books": current_books,
+                "total_books": len(Book.query.all()),
+            }
+        )
+
+    return app

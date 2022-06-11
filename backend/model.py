@@ -37,13 +37,6 @@ class Book(db.Model):
         self.rating = rating
     
     # Query formating
-    def format(self):
-        return jsonify({
-            'id': self.id,
-            'title': self.title,
-            'author': self.author,
-            'rating': self.rating
-        })
     
     # Insert
     def insert(self):
@@ -56,5 +49,14 @@ class Book(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+
+    def format(self):
+        return jsonify({
+            'id': self.id,
+            'title': self.title,
+            'author': self.author,
+            'rating': self.rating
+        })
+    
 
     
